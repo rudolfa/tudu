@@ -53,8 +53,8 @@ void Interface::main()
 		{
 			screen.infoClear();
 			if (KEY_RESIZE == key) resizeTerm();
-			if (KEY_LEFT == key) left();
-			if (KEY_RIGHT == key) right();
+			if (KEY_LEFT == key) reverse();
+			if (KEY_RIGHT == key) forward();
 			if (KEY_DOWN  == key) down();
 			if (KEY_UP == key) up();
 			if (KEY_PPAGE == key) prevPage();
@@ -380,6 +380,115 @@ void Interface::left()
 		prev();
 		drawTodo();
 	}
+}
+
+// Forward Traversal (Pre-Order)
+void Interface::forward()
+{
+    eraseCursor();
+
+    iToDo saved_cursor = cursor;
+    int saved_cursor_line = cursor_line;
+
+    int current_task_height = screen.taskLines(cursor.depth(), *cursor);
+
+    bool previous_act_collapse = cursor->actCollapse();
+
+    cursor->actCollapse() = true;
+    cursor.in();
+
+    if (cursor.end())
+    {
+        cursor.out();
+
+        cursor->actCollapse() = previous_act_collapse;
+
+        ++cursor; 
+
+        while (cursor.end() && cursor.depth() > 0)
+        {
+            cursor.out();
+            cursor->actCollapse() = false;
+            ++cursor;
+        }
+
+        cursor_line += current_task_height;
+    }
+    else
+    {
+        cursor_line += 1;
+    }
+
+    while (!cursor.end() && isHide(cursor))
+    {
+        int hidden_height = screen.taskLines(cursor.depth(), *cursor);
+        ++cursor;
+
+        while (cursor.end() && cursor.depth() > 0)
+        {
+            cursor.out();
+            cursor->actCollapse() = false;
+            ++cursor;
+        }
+        cursor_line += hidden_height;
+    }
+
+    if (cursor.end())
+    {
+        cursor = saved_cursor;
+        cursor_line = saved_cursor_line;
+    }
+
+    drawTodo();
+}
+
+// Reverse Traversal (Pre-Order)
+void Interface::reverse()
+{
+    eraseCursor();
+
+    iToDo saved_cursor = cursor;
+    int saved_cursor_line = cursor_line;
+
+    do 
+    {
+        if (!--cursor) 
+        {
+            if (!cursor.out()) 
+            {
+                cursor = saved_cursor;
+                cursor_line = saved_cursor_line;
+                return; 
+            }
+            
+            cursor->actCollapse() = false;
+        }
+        else 
+        {
+            while (cursor->haveChild())
+            {
+                bool previous_act_collapse = cursor->actCollapse();
+                
+                cursor->actCollapse() = true; 
+                cursor.in();                  
+                
+                if (cursor.end()) 
+                {
+                    cursor.out();
+                    cursor->actCollapse() = previous_act_collapse;
+                    break; 
+                }
+                
+                while (++cursor);
+                --cursor; 
+            }
+        }
+        
+    } while (isHide(cursor)); 
+
+    cursor_line -= screen.taskLines(cursor.depth(), *cursor);
+
+    drawTodo();
 }
 
 void Interface::right()

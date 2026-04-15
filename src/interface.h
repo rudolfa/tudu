@@ -76,6 +76,8 @@ private:
 	void right();
 	void up();
 	void down();
+    void forward();
+    void reverse();
 	void prevPage();
 	void nextPage();
 	void home();
