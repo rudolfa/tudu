@@ -110,6 +110,7 @@ void Interface::main()
 			if (L"collapse" == action) collapse();
 			if (L"hideDone" == action) hide_done();
 			if (L"search" == action) search();
+			if (L"searchText" == action) searchTextCmd();
 			if (L"searchNext" == action) search_next();
 			if (L"searchPrev" == action) search_prev();
 			if (L"cmd" == action) command_line();
@@ -1029,6 +1030,65 @@ bool Interface::_search()
 	return res;
 }
 
+bool Interface::_searchText()
+{
+    iToDo hit = cursor;
+    bool found = false;
+
+    if (hit.end()) return false;
+
+    while (true)
+    {
+        hit.in();
+        if (hit.end()) {
+            hit.out();
+            ++hit;
+
+            while (hit.end() && hit.depth() > 0) {
+                hit.out();
+                ++hit;
+            }
+        }
+
+        if (hit.end()) {
+            while (hit.out());
+            while (--hit);
+        }
+
+        if (hit == cursor) {
+            break;
+        }
+
+        std::wstringstream wss;
+        wss << hit->getText();
+        std::wstring desc = wss.str();
+
+        if (desc.find(search_pattern) != std::wstring::npos) {
+            if (!isHide(hit)) {
+                found = true;
+                break;
+            }
+        }
+    }
+
+    if (found)
+    {
+        iToDo aux = cursor;
+        while (aux.out()) aux->actCollapse() = false;
+
+        aux = hit;
+        while (hit.out()) hit->actCollapse() = true;
+
+        while (next()) {
+            if (cursor == aux) return true;
+        }
+        while (cursor != aux && prev());
+        return true;
+    }
+
+    return false;
+}
+
 void Interface::command_line()
 {
 	Editor::return_t save;
@@ -1055,45 +1115,83 @@ void Interface::command_line()
 
 void Interface::search()
 {
-	Editor::return_t save;
-	wstring pattern(L"");
-	save = screen.searchText(pattern, 0);
-	while (save == Editor::RESIZE)
-	{
-		resizeTerm();
-		save = screen.searchText(pattern);
-	}
+    Editor::return_t save;
+    wstring pattern(L"");
+    save = screen.searchText(pattern, 0);
+    while (save == Editor::RESIZE)
+    {
+        resizeTerm();
+        save = screen.searchText(pattern);
+    }
 
-	if (save == Editor::SAVED)
-	{
-		search_pattern = pattern;
-		if (_search())
-			drawTodo();
-		else
-			screen.infoMsg("Not found");
-	}
+    if (save == Editor::SAVED)
+    {
+        search_pattern = pattern;
+        lastSearchWasText = false; // Setzt das Flag in camelCase
+        if (_search())
+            drawTodo();
+        else
+            screen.infoMsg("Not found");
+    }
+}
+
+void Interface::searchTextCmd()
+{
+    Editor::return_t save;
+    wstring pattern(L"");
+
+    screen.infoMsg("Search in Descriptions: ");
+    save = screen.searchText(pattern, 0);
+
+    while (save == Editor::RESIZE)
+    {
+        resizeTerm();
+        save = screen.searchText(pattern);
+    }
+
+    if (save == Editor::SAVED && pattern != L"")
+    {
+        search_pattern = pattern;
+        lastSearchWasText = true; // Setzt das Flag in camelCase
+        if (_searchText())
+            drawTodo();
+        else
+            screen.infoMsg("Pattern not found in any description");
+    }
 }
 
 void Interface::search_next()
 {
-	if (search_pattern != L"")
-		if (_search())
-			drawTodo();
-		else
-			screen.infoMsg("Not found");
-	else
-		screen.infoMsg("No search pattern");
+    if (search_pattern != L"")
+    {
+        bool found = lastSearchWasText ? _searchText() : _search();
+
+        if (found)
+            drawTodo();
+        else
+            screen.infoMsg("Not found");
+    }
+    else
+    {
+        screen.infoMsg("No search pattern");
+    }
 }
 
 void Interface::search_prev()
 {
-	if (search_pattern != L"")
-		if (_search())
-			drawTodo();
-		else
-			screen.infoMsg("Not found");
-	else
-		screen.infoMsg("No search pattern");
+    if (search_pattern != L"")
+    {
+        bool found = lastSearchWasText ? _searchText() : _search();
+
+        if (found)
+            drawTodo();
+        else
+            screen.infoMsg("Not found");
+    }
+    else
+    {
+        screen.infoMsg("No search pattern");
+    }
 }
 
 void Interface::sortByTitle()

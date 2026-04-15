@@ -51,6 +51,8 @@ private:
 	set<wstring> hidden_categories;
 	int cursor_line;
 
+	bool lastSearchWasText = false;
+
 	void resizeTerm();
 	void drawTodo();
 	void eraseCursor();
@@ -109,6 +111,8 @@ private:
 	void hide_done();
 	void command_line();
 	bool _search();
+	void searchTextCmd();
+	bool _searchText();
 	void search();
 	void search_next();
 	void search_prev();
