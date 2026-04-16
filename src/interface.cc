@@ -53,8 +53,8 @@ void Interface::main()
 		{
 			screen.infoClear();
 			if (KEY_RESIZE == key) resizeTerm();
-			if (KEY_LEFT == key) left();
-			if (KEY_RIGHT == key) right();
+			if (KEY_LEFT == key) reverse();
+			if (KEY_RIGHT == key) forward();
 			if (KEY_DOWN  == key) down();
 			if (KEY_UP == key) up();
 			if (KEY_PPAGE == key) prevPage();
@@ -110,6 +110,7 @@ void Interface::main()
 			if (L"collapse" == action) collapse();
 			if (L"hideDone" == action) hide_done();
 			if (L"search" == action) search();
+			if (L"searchText" == action) searchTextCmd();
 			if (L"searchNext" == action) search_next();
 			if (L"searchPrev" == action) search_prev();
 			if (L"cmd" == action) command_line();
@@ -380,6 +381,115 @@ void Interface::left()
 		prev();
 		drawTodo();
 	}
+}
+
+// Forward Traversal (Pre-Order)
+void Interface::forward()
+{
+    eraseCursor();
+
+    iToDo saved_cursor = cursor;
+    int saved_cursor_line = cursor_line;
+
+    int current_task_height = screen.taskLines(cursor.depth(), *cursor);
+
+    bool previous_act_collapse = cursor->actCollapse();
+
+    cursor->actCollapse() = true;
+    cursor.in();
+
+    if (cursor.end())
+    {
+        cursor.out();
+
+        cursor->actCollapse() = previous_act_collapse;
+
+        ++cursor; 
+
+        while (cursor.end() && cursor.depth() > 0)
+        {
+            cursor.out();
+            cursor->actCollapse() = false;
+            ++cursor;
+        }
+
+        cursor_line += current_task_height;
+    }
+    else
+    {
+        cursor_line += 1;
+    }
+
+    while (!cursor.end() && isHide(cursor))
+    {
+        int hidden_height = screen.taskLines(cursor.depth(), *cursor);
+        ++cursor;
+
+        while (cursor.end() && cursor.depth() > 0)
+        {
+            cursor.out();
+            cursor->actCollapse() = false;
+            ++cursor;
+        }
+        cursor_line += hidden_height;
+    }
+
+    if (cursor.end())
+    {
+        cursor = saved_cursor;
+        cursor_line = saved_cursor_line;
+    }
+
+    drawTodo();
+}
+
+// Reverse Traversal (Pre-Order)
+void Interface::reverse()
+{
+    eraseCursor();
+
+    iToDo saved_cursor = cursor;
+    int saved_cursor_line = cursor_line;
+
+    do 
+    {
+        if (!--cursor) 
+        {
+            if (!cursor.out()) 
+            {
+                cursor = saved_cursor;
+                cursor_line = saved_cursor_line;
+                return; 
+            }
+            
+            cursor->actCollapse() = false;
+        }
+        else 
+        {
+            while (cursor->haveChild())
+            {
+                bool previous_act_collapse = cursor->actCollapse();
+                
+                cursor->actCollapse() = true; 
+                cursor.in();                  
+                
+                if (cursor.end()) 
+                {
+                    cursor.out();
+                    cursor->actCollapse() = previous_act_collapse;
+                    break; 
+                }
+                
+                while (++cursor);
+                --cursor; 
+            }
+        }
+        
+    } while (isHide(cursor)); 
+
+    cursor_line -= screen.taskLines(cursor.depth(), *cursor);
+
+    drawTodo();
 }
 
 void Interface::right()
@@ -920,6 +1030,65 @@ bool Interface::_search()
 	return res;
 }
 
+bool Interface::_searchText()
+{
+    iToDo hit = cursor;
+    bool found = false;
+
+    if (hit.end()) return false;
+
+    while (true)
+    {
+        hit.in();
+        if (hit.end()) {
+            hit.out();
+            ++hit;
+
+            while (hit.end() && hit.depth() > 0) {
+                hit.out();
+                ++hit;
+            }
+        }
+
+        if (hit.end()) {
+            while (hit.out());
+            while (--hit);
+        }
+
+        if (hit == cursor) {
+            break;
+        }
+
+        std::wstringstream wss;
+        wss << hit->getText();
+        std::wstring desc = wss.str();
+
+        if (desc.find(search_pattern) != std::wstring::npos) {
+            if (!isHide(hit)) {
+                found = true;
+                break;
+            }
+        }
+    }
+
+    if (found)
+    {
+        iToDo aux = cursor;
+        while (aux.out()) aux->actCollapse() = false;
+
+        aux = hit;
+        while (hit.out()) hit->actCollapse() = true;
+
+        while (next()) {
+            if (cursor == aux) return true;
+        }
+        while (cursor != aux && prev());
+        return true;
+    }
+
+    return false;
+}
+
 void Interface::command_line()
 {
 	Editor::return_t save;
@@ -946,45 +1115,83 @@ void Interface::command_line()
 
 void Interface::search()
 {
-	Editor::return_t save;
-	wstring pattern(L"");
-	save = screen.searchText(pattern, 0);
-	while (save == Editor::RESIZE)
-	{
-		resizeTerm();
-		save = screen.searchText(pattern);
-	}
+    Editor::return_t save;
+    wstring pattern(L"");
+    save = screen.searchText(pattern, 0);
+    while (save == Editor::RESIZE)
+    {
+        resizeTerm();
+        save = screen.searchText(pattern);
+    }
 
-	if (save == Editor::SAVED)
-	{
-		search_pattern = pattern;
-		if (_search())
-			drawTodo();
-		else
-			screen.infoMsg("Not found");
-	}
+    if (save == Editor::SAVED)
+    {
+        search_pattern = pattern;
+        lastSearchWasText = false; // Setzt das Flag in camelCase
+        if (_search())
+            drawTodo();
+        else
+            screen.infoMsg("Not found");
+    }
+}
+
+void Interface::searchTextCmd()
+{
+    Editor::return_t save;
+    wstring pattern(L"");
+
+    screen.infoMsg("Search in Descriptions: ");
+    save = screen.searchText(pattern, 0);
+
+    while (save == Editor::RESIZE)
+    {
+        resizeTerm();
+        save = screen.searchText(pattern);
+    }
+
+    if (save == Editor::SAVED && pattern != L"")
+    {
+        search_pattern = pattern;
+        lastSearchWasText = true; // Setzt das Flag in camelCase
+        if (_searchText())
+            drawTodo();
+        else
+            screen.infoMsg("Pattern not found in any description");
+    }
 }
 
 void Interface::search_next()
 {
-	if (search_pattern != L"")
-		if (_search())
-			drawTodo();
-		else
-			screen.infoMsg("Not found");
-	else
-		screen.infoMsg("No search pattern");
+    if (search_pattern != L"")
+    {
+        bool found = lastSearchWasText ? _searchText() : _search();
+
+        if (found)
+            drawTodo();
+        else
+            screen.infoMsg("Not found");
+    }
+    else
+    {
+        screen.infoMsg("No search pattern");
+    }
 }
 
 void Interface::search_prev()
 {
-	if (search_pattern != L"")
-		if (_search())
-			drawTodo();
-		else
-			screen.infoMsg("Not found");
-	else
-		screen.infoMsg("No search pattern");
+    if (search_pattern != L"")
+    {
+        bool found = lastSearchWasText ? _searchText() : _search();
+
+        if (found)
+            drawTodo();
+        else
+            screen.infoMsg("Not found");
+    }
+    else
+    {
+        screen.infoMsg("No search pattern");
+    }
 }
 
 void Interface::sortByTitle()

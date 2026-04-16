@@ -389,7 +389,7 @@ void Writer::_save()
 }
 
 #define replace(orig, alt) \
-	{ \
+	do { \
 	index = 0; \
 	while ((index = str.find(orig,index)) != wstring::npos) \
 	{ \

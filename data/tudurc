@@ -67,6 +67,7 @@ downText     = z
 collapse     = c   # Collapse or expand a category having children
 hideDone     = M   # hide/show done tasks
 search       = /
+searchText   = ~
 searchNext   = n
 searchPrev   = N
 cmd          = :
