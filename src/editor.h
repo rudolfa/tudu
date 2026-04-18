@@ -20,151 +20,156 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
-#include "includes.h"
 #include "data.h"
+#include "includes.h"
 #include "window.h"
 
 class Editor
 {
 public:
-	/* return values for the editor */
-	enum return_t {
-		NOT_SAVED = 0,
-		SAVED,
-		/* In case of changes that need to redraw or resize the screen.
-		 * After update the screen the function edit should be call again. */
-		RESIZE,
-		REDRAW
-	};
+  /* return values for the editor */
+  enum return_t
+  {
+    NOT_SAVED = 0,
+    SAVED,
+    /* In case of changes that need to redraw or resize the screen.
+     * After update the screen the function edit should be call again. */
+    RESIZE,
+    REDRAW
+  };
 
-	Editor();
+  Editor ();
 
-	wstring& getText();
-	int& cursorPos();
-	return_t edit(Window& win, int begin_y, int begin_x, int ncols);
+  wstring &getText ();
+  int &cursorPos ();
+  return_t edit (Window &win, int begin_y, int begin_x, int ncols);
+
 protected:
-	Window *window;
-	int y;
-	int x;
-	unsigned int cols;
-	wstring text;
-	int cursor;
-	wint_t key;
-	bool exit;
-	return_t result;
+  Window *window;
+  int y;
+  int x;
+  unsigned int cols;
+  wstring text;
+  int cursor;
+  wint_t key;
+  bool exit;
+  return_t result;
 
-	virtual void initialize();
-	virtual void updateText();
-	virtual void left();
-	virtual void right();
-	virtual void up();
-	virtual void down();
-	virtual void home();
-	virtual void end();
-	virtual void backspace();
-	virtual void supr();
-	virtual void tab();
-	virtual void other();
-	virtual void enter();
-	virtual void esc();
+  virtual void initialize ();
+  virtual void updateText ();
+  virtual void left ();
+  virtual void right ();
+  virtual void up ();
+  virtual void down ();
+  virtual void home ();
+  virtual void end ();
+  virtual void backspace ();
+  virtual void supr ();
+  virtual void tab ();
+  virtual void other ();
+  virtual void enter ();
+  virtual void esc ();
 };
 
-class LineEditor: public Editor
+class LineEditor : public Editor
 {
 protected:
-	void updateText();
-	void left();
-	void right();
-	void home();
-	void end();
-	void backspace();
-	void supr();
-	void tab();
-	void other();
+  void updateText ();
+  void left ();
+  void right ();
+  void home ();
+  void end ();
+  void backspace ();
+  void supr ();
+  void tab ();
+  void other ();
 };
 
-class TitleEditor: public LineEditor
+class TitleEditor : public LineEditor
 {
 protected:
-	int textLines;
-	int cursor_col;
-	int cursor_line;
+  int textLines;
+  int cursor_col;
+  int cursor_line;
 
-	void initialize();
-	void updateText();
-	void up();
-	void down();
+  void initialize ();
+  void updateText ();
+  void up ();
+  void down ();
 };
 
-class CategoryEditor: public LineEditor
-{
-public:
-	return_t edit(Window& win, int begin_y, int begin_x, int ncols);
-protected:
-	set<wstring>::iterator search;
-	set<wstring>::iterator first;
-	int length;
-
-	bool cmp(unsigned int idx, wstring str);
-	void tab();
-};
-
-class HistoryEditor: public LineEditor
-{
-protected:
-	list<wstring> history;
-	list<wstring>::iterator shown;
-
-	void initialize();
-	void up();
-	void down();
-	void enter();
-	void backspace();
-};
-
-class CmdEditor: public HistoryEditor
-{
-protected:
-	map<wstring,wstring>::iterator com_search;
-	map<wstring,wstring>::iterator com_first;
-	set<wstring>::iterator search;
-	set<wstring>::iterator first;
-	int length;
-	int param;
-
-	void initialize();
-	bool cmp(wstring str);
-	void tab();
-	void command_completion(wstring& com);
-	void category_completion(wstring& cat, int num_param);
-};
-
-class DateEditor: public Editor
+class CategoryEditor : public LineEditor
 {
 public:
-	return_t edit(Window& win, int begin_y, int begin_x);
+  return_t edit (Window &win, int begin_y, int begin_x, int ncols);
+
 protected:
-	void updateText();
-	void left();
-	void right();
-	void up();
-	void down();
-	void home();
-	void end();
-	void other();
+  set<wstring>::iterator search;
+  set<wstring>::iterator first;
+  int length;
+
+  bool cmp (unsigned int idx, wstring str);
+  void tab ();
 };
 
-class PriorityEditor: public Editor
+class HistoryEditor : public LineEditor
+{
+protected:
+  list<wstring> history;
+  list<wstring>::iterator shown;
+
+  void initialize ();
+  void up ();
+  void down ();
+  void enter ();
+  void backspace ();
+};
+
+class CmdEditor : public HistoryEditor
+{
+protected:
+  map<wstring, wstring>::iterator com_search;
+  map<wstring, wstring>::iterator com_first;
+  set<wstring>::iterator search;
+  set<wstring>::iterator first;
+  int length;
+  int param;
+
+  void initialize ();
+  bool cmp (wstring str);
+  void tab ();
+  void command_completion (wstring &com);
+  void category_completion (wstring &cat, int num_param);
+};
+
+class DateEditor : public Editor
 {
 public:
-	return_t edit(Window& win, int begin_y, int begin_x);
+  return_t edit (Window &win, int begin_y, int begin_x);
+
 protected:
-	void updateText();
-	void up();
-	void down();
-	void backspace();
-	void supr();
-	void other();
+  void updateText ();
+  void left ();
+  void right ();
+  void up ();
+  void down ();
+  void home ();
+  void end ();
+  void other ();
+};
+
+class PriorityEditor : public Editor
+{
+public:
+  return_t edit (Window &win, int begin_y, int begin_x);
+
+protected:
+  void updateText ();
+  void up ();
+  void down ();
+  void backspace ();
+  void supr ();
+  void other ();
 };
 
 #endif

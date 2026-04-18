@@ -21,27 +21,26 @@
 
 #include "includes.h"
 class Cmd;
-#include "interface.h"
 #include "data.h"
+#include "interface.h"
 
 /* comands definition with it's params types */
-extern map<wstring,wstring> commands;
+extern map<wstring, wstring> commands;
 
 class Cmd
 {
 public:
-	Cmd();
+  Cmd ();
 
-	void get_interface(Interface *i);
-	bool cmd(wstring command); /* return if should be redraw the screen */
+  void get_interface (Interface *i);
+  bool cmd (wstring command); /* return if should be redraw the screen */
 private:
-	Interface *interface;
+  Interface *interface;
 
-	void hide(vector<wstring> &params);
-	void show(vector<wstring> &params);
-	void showall(vector<wstring> &params);
-	void showonly(vector<wstring> &params);
-	void help(vector<wstring> &params);
+  void hide (vector<wstring> &params);
+  void show (vector<wstring> &params);
+  void showall (vector<wstring> &params);
+  void showonly (vector<wstring> &params);
+  void help (vector<wstring> &params);
 };
 #endif
-

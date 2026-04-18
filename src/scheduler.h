@@ -20,25 +20,26 @@
 #ifndef SCHEDULE_H
 #define SCHEDULE_H
 
-#include "includes.h"
 #include "data.h"
 #include "date.h"
+#include "includes.h"
 
 typedef list<pToDo> sched_l;
 
 class Sched
 {
 public:
-	void add(pToDo todo);
-	void add_recursive(pToDo todo);
-	void up(pToDo todo);
-	void down(pToDo todo);
-	void del(pToDo todo);
-	void del_recursive(pToDo todo);
-	int get(sched_l& list);
-	int get(Date& from, sched_l& list);
+  void add (pToDo todo);
+  void add_recursive (pToDo todo);
+  void up (pToDo todo);
+  void down (pToDo todo);
+  void del (pToDo todo);
+  void del_recursive (pToDo todo);
+  int get (sched_l &list);
+  int get (Date &from, sched_l &list);
+
 private:
-	sched_l sched;
+  sched_l sched;
 };
 
 #endif

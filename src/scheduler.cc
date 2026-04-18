@@ -24,119 +24,140 @@
  * because when paste it use the last position
  */
 
-void Sched::add_recursive(pToDo todo)
+void
+Sched::add_recursive (pToDo todo)
 {
-	for (iToDo j(*todo) ; !j.end(); ++j)
-		add_recursive(&(*j));
+  for (iToDo j (*todo); !j.end (); ++j)
+    add_recursive (&(*j));
 
-	if (todo->sched().valid())
-		add(todo);
+  if (todo->sched ().valid ())
+    add (todo);
 }
 
-void Sched::add(pToDo todo)
+void
+Sched::add (pToDo todo)
 {
-	sched_l::iterator i;
+  sched_l::iterator i;
 
-	for (i = sched.begin(); (i != sched.end()) && ((*i)->sched() < todo->sched()); i++);
-	if (todo->schedPosition() == 0)
-	{
-		if ((i != sched.end()) && ((*i)->sched() == todo->sched()))
-		{
-			for (; ((*i)->sched() == todo->sched()); i++);
-			i--;
-			todo->schedPosition() = (*i)->schedPosition() + 1;
-			i++;
-		}
-		else
-		{
-			todo->schedPosition() = 1;
-		}
-	}
-	else
-	{
-		for (; (i != sched.end()) && ((*i)->sched() == todo->sched()) &&
-				((*i)->schedPosition() < todo->schedPosition()); i++);
-	}
-	sched.insert(i, todo);
+  for (i = sched.begin ();
+       (i != sched.end ()) && ((*i)->sched () < todo->sched ()); i++)
+    ;
+  if (todo->schedPosition () == 0)
+    {
+      if ((i != sched.end ()) && ((*i)->sched () == todo->sched ()))
+        {
+          for (; ((*i)->sched () == todo->sched ()); i++)
+            ;
+          i--;
+          todo->schedPosition () = (*i)->schedPosition () + 1;
+          i++;
+        }
+      else
+        {
+          todo->schedPosition () = 1;
+        }
+    }
+  else
+    {
+      for (; (i != sched.end ()) && ((*i)->sched () == todo->sched ())
+             && ((*i)->schedPosition () < todo->schedPosition ());
+           i++)
+        ;
+    }
+  sched.insert (i, todo);
 }
 
-void Sched::up(pToDo todo)
+void
+Sched::up (pToDo todo)
 {
-	sched_l::iterator i,j;
+  sched_l::iterator i, j;
 
-	for (i = sched.begin(); (i != sched.end()) && ((*i) != todo); i++);
-	j = i; j--;
+  for (i = sched.begin (); (i != sched.end ()) && ((*i) != todo); i++)
+    ;
+  j = i;
+  j--;
 
-	/* if there is a task before swap them */
-	if ((i != sched.begin()) && ((*i) == todo) && ((*j)->sched() == todo->sched()))
-	{
-		int aux = (*j)->schedPosition();
-		(*j)->schedPosition() = todo->schedPosition();
-		todo->schedPosition() = aux;
-		sched.insert(j, todo);
-		j = i; i++;
-		sched.erase(j,i);
-	}
+  /* if there is a task before swap them */
+  if ((i != sched.begin ()) && ((*i) == todo)
+      && ((*j)->sched () == todo->sched ()))
+    {
+      int aux = (*j)->schedPosition ();
+      (*j)->schedPosition () = todo->schedPosition ();
+      todo->schedPosition () = aux;
+      sched.insert (j, todo);
+      j = i;
+      i++;
+      sched.erase (j, i);
+    }
 }
 
-void Sched::down(pToDo todo)
+void
+Sched::down (pToDo todo)
 {
-	sched_l::iterator i,j;
+  sched_l::iterator i, j;
 
-	for (i = sched.begin(); (i != sched.end()) && ((*i) != todo); i++);
-	j = i; j++;
+  for (i = sched.begin (); (i != sched.end ()) && ((*i) != todo); i++)
+    ;
+  j = i;
+  j++;
 
-	/* if there is a task before swap them */
-	if ((j != sched.end()) && ((*i) == todo) && ((*j)->sched() == todo->sched()))
-	{
-		sched.erase(i,j);
-		int aux = (*j)->schedPosition();
-		(*j)->schedPosition() = todo->schedPosition();
-		todo->schedPosition() = aux;
-		j++;
-		sched.insert(j, todo);
-	}
+  /* if there is a task before swap them */
+  if ((j != sched.end ()) && ((*i) == todo)
+      && ((*j)->sched () == todo->sched ()))
+    {
+      sched.erase (i, j);
+      int aux = (*j)->schedPosition ();
+      (*j)->schedPosition () = todo->schedPosition ();
+      todo->schedPosition () = aux;
+      j++;
+      sched.insert (j, todo);
+    }
 }
 
-void Sched::del(pToDo todo)
+void
+Sched::del (pToDo todo)
 {
-	sched.remove(todo);
+  sched.remove (todo);
 }
 
-void Sched::del_recursive(pToDo todo)
+void
+Sched::del_recursive (pToDo todo)
 {
-	for (iToDo i(*todo) ; !i.end(); ++i)
-		del_recursive(&(*i));
-	sched.remove(todo);
+  for (iToDo i (*todo); !i.end (); ++i)
+    del_recursive (&(*i));
+  sched.remove (todo);
 }
 
-int Sched::get(sched_l& list)
+int
+Sched::get (sched_l &list)
 {
-	sched_l::iterator i;
-	int num_scheds = 0;
+  sched_l::iterator i;
+  int num_scheds = 0;
 
-	list.clear();
-	for (i = sched.begin();  (i != sched.end()); i++)
-	{
-		num_scheds++;
-		list.push_back(*i);
-	}
+  list.clear ();
+  for (i = sched.begin (); (i != sched.end ()); i++)
+    {
+      num_scheds++;
+      list.push_back (*i);
+    }
 
-	return num_scheds;
+  return num_scheds;
 }
 
-int Sched::get(Date& from, sched_l& list)
+int
+Sched::get (Date &from, sched_l &list)
 {
-	sched_l::iterator i;
-	int num_scheds = 0;
+  sched_l::iterator i;
+  int num_scheds = 0;
 
-	list.clear();
-	for (i = sched.begin(); (i != sched.end()) && ((*i)->sched() < from); i++);
-	for (;  i != sched.end(); i++)
-	{
-		num_scheds++;
-		list.push_back(*i);
-	}
+  list.clear ();
+  for (i = sched.begin (); (i != sched.end ()) && ((*i)->sched () < from); i++)
+    ;
+  for (; i != sched.end (); i++)
+    {
+      num_scheds++;
+      list.push_back (*i);
+    }
 
-	return num_scheds;
+  return num_scheds;
 }

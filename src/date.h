@@ -25,23 +25,24 @@
 class Date
 {
 public:
-	Date(int day = 1, int month = 1, int year = 1900);
+  Date (int day = 1, int month = 1, int year = 1900);
 
-	int& day(int d = 0);
-	int& month(int m = 0);
-	int& year(int y = 0);
-	void setToday();
-	bool valid(); /* if valid date if year == 1900 is invalid */
-	bool correct(); /* if this date exist */
-	int daysLeft();
-	Date operator-(int days);
-	Date operator+(int days);
-	bool operator<(Date d);
-	bool operator>(Date d);
-	bool operator!=(Date d);
-	bool operator==(Date d);
+  int &day (int d = 0);
+  int &month (int m = 0);
+  int &year (int y = 0);
+  void setToday ();
+  bool valid ();   /* if valid date if year == 1900 is invalid */
+  bool correct (); /* if this date exist */
+  int daysLeft ();
+  Date operator- (int days);
+  Date operator+ (int days);
+  bool operator< (Date d);
+  bool operator> (Date d);
+  bool operator!= (Date d);
+  bool operator== (Date d);
+
 protected:
-	int _day, _month, _year;
+  int _day, _month, _year;
 };
 
 #endif

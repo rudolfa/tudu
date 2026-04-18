@@ -22,50 +22,51 @@
 
 #include "includes.h"
 
-typedef struct {
-	int y, x;
-	int lines, cols;
+typedef struct
+{
+  int y, x;
+  int lines, cols;
 } window_coor;
 
 class Window
 {
 public:
-	Window(window_coor coor);
-	Window(int lines, int cols, int y, int x);
-	Window();
-	~Window();
+  Window (window_coor coor);
+  Window (int lines, int cols, int y, int x);
+  Window ();
+  ~Window ();
 
-	int _addstr(const char *str);
-	int _addstr(const wchar_t *str);
-	int _addstr(const string &str);
-	int _addstr(const wstring &str);
-	int _addstr(int y, int x, const char *str);
-	int _addstr(int y, int x, const wchar_t *str);
-	int _addstr(int y, int x, const string &str);
-	int _addstr(int y, int x, const wstring &str);
-	int _addstr(const wstring &str, const unsigned int cols);
-	int _addstr(int y, int x, const wstring &str, unsigned int cols);
-	int _addch(const char ch);
-	int _addch(int y, int x, const char ch);
-	int _refresh();
-	int _redraw();
-	int _move(int y, int x);
-	int _attron(int attrs);
-	int _attroff(int attrs);
-	int _erase();
-	int _getch(wint_t& ch);
-	void _getmaxyx(int& y, int& x);
-	int _box();
-	int _lines();
-	int _cols();
-	int _resize(int lines, int columns);
-	int _mv(int y, int x);
-	int _vline(chtype ch, int n);
-	int _hline(chtype ch, int n);
-	int _delwin();
+  int _addstr (const char *str);
+  int _addstr (const wchar_t *str);
+  int _addstr (const string &str);
+  int _addstr (const wstring &str);
+  int _addstr (int y, int x, const char *str);
+  int _addstr (int y, int x, const wchar_t *str);
+  int _addstr (int y, int x, const string &str);
+  int _addstr (int y, int x, const wstring &str);
+  int _addstr (const wstring &str, const unsigned int cols);
+  int _addstr (int y, int x, const wstring &str, unsigned int cols);
+  int _addch (const char ch);
+  int _addch (int y, int x, const char ch);
+  int _refresh ();
+  int _redraw ();
+  int _move (int y, int x);
+  int _attron (int attrs);
+  int _attroff (int attrs);
+  int _erase ();
+  int _getch (wint_t &ch);
+  void _getmaxyx (int &y, int &x);
+  int _box ();
+  int _lines ();
+  int _cols ();
+  int _resize (int lines, int columns);
+  int _mv (int y, int x);
+  int _vline (chtype ch, int n);
+  int _hline (chtype ch, int n);
+  int _delwin ();
+
 protected:
-	WINDOW *win;
+  WINDOW *win;
 };
-
 
 #endif
