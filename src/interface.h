@@ -22,114 +22,115 @@
 
 #include "includes.h"
 class Interface;
-#include "data.h"
-#include "scheduler.h"
-#include "config.h"
-#include "parser.h"
-#include "editor.h"
-#include "screen.h"
 #include "cmd.h"
+#include "config.h"
+#include "data.h"
+#include "editor.h"
+#include "parser.h"
+#include "scheduler.h"
+#include "screen.h"
 
 class Interface
 {
 public:
-	Interface(Screen& s, iToDo &t, Sched& sch, Config &c, Writer &w, Cmd &com);
-	~Interface();
+  Interface (Screen &s, iToDo &t, Sched &sch, Config &c, Writer &w, Cmd &com);
+  ~Interface ();
 
-	void main();
-	friend class Cmd;
+  void main ();
+  friend class Cmd;
+
 private:
-	Screen &screen;
-	iToDo &cursor;
-	Sched &sched;
-	Config &config;
-	Writer &writer;
-	pToDo copied;
-	wstring sortOrder;
-	wstring search_pattern;
-	Cmd &cmd; /* command interface */
-	set<wstring> hidden_categories;
-	int cursor_line;
+  Screen &screen;
+  iToDo &cursor;
+  Sched &sched;
+  Config &config;
+  Writer &writer;
+  pToDo copied;
+  wstring sortOrder;
+  wstring search_pattern;
+  Cmd &cmd; /* command interface */
+  set<wstring> hidden_categories;
+  int cursor_line;
 
-	bool lastSearchWasText = false;
+  bool lastSearchWasText = false;
 
-	void resizeTerm();
-	void drawTodo();
-	void eraseCursor();
+  void resizeTerm ();
+  void drawTodo ();
+  void eraseCursor ();
 
-	/*
-	 *  calculate the position of the cursor on the screen
-	 *  so if it was out of the screen it places it inside.
-	 *  return true if the screen must be redrawn
-	 */
-	bool fitCursor();
+  /*
+   *  calculate the position of the cursor on the screen
+   *  so if it was out of the screen it places it inside.
+   *  return true if the screen must be redrawn
+   */
+  bool fitCursor ();
 
-	void drawCursor();
-	bool isHide(iToDo& todo);
-	void inherit();
+  void drawCursor ();
+  bool isHide (iToDo &todo);
+  void inherit ();
 
-	/* update cursor and cursor_line to previous entry on the screen */
-	bool next();
-	/* update cursor and cursor_line to next entry on the screen
-	   always points to a valid line */
-	bool prev();
+  /* update cursor and cursor_line to previous entry on the screen */
+  bool next ();
+  /* update cursor and cursor_line to next entry on the screen
+     always points to a valid line */
+  bool prev ();
 
-	void left();
-	void right();
-	void up();
-	void down();
-    void forward();
-    void reverse();
-	void prevPage();
-	void nextPage();
-	void home();
-	void end();
-	void move_up();
-	void move_down();
-	void done();
-	void del();
-	void delDeadline();
-	void delPriority();
-	void delSched();
-	void paste();
-	void pasteUp();
-	void pasteChild();
-	bool editLine(wstring& str);
-	void editDeadline();
-	void setPriority();
-	void setCategory();
-	void addLine();
-	void addLineUp();
-	void modifyLine();
-	void editText();
-	void editSched();
-	void schedUp();
-	void schedDown();
-	void upText();
-	void downText();
-	void collapse();
-	void hide_done();
-	void command_line();
-	bool _search();
-	void searchTextCmd();
-	bool _searchText();
-	void search();
-	void search_next();
-	void search_prev();
-	void sortByTitle();
-	void sortByDone();
-	void sortByDeadline();
-	void sortByPriority();
-	void sortByCategory();
-	void sortByUser();
-	void sortRevTitle();
-	void sortRevDone();
-	void sortRevDeadline();
-	void sortRevPriority();
-	void sortRevCategory();
-	void sortRevUser();
-	void save();
-	void help();
+  void left ();
+  void right ();
+  void up ();
+  void down ();
+  void forward ();
+  void reverse ();
+  void prevPage ();
+  void nextPage ();
+  void home ();
+  void end ();
+  void move_up ();
+  void move_down ();
+  void done ();
+  void del ();
+  void delDeadline ();
+  void delPriority ();
+  void delSched ();
+  void paste ();
+  void pasteUp ();
+  void pasteChild ();
+  bool editLine (wstring &str);
+  void editDeadline ();
+  void setPriority ();
+  void setCategory ();
+  void addLine ();
+  void addLineUp ();
+  void modifyLine ();
+  void editText ();
+  void editSched ();
+  void schedUp ();
+  void schedDown ();
+  void upText ();
+  void downText ();
+  void collapse ();
+  void hide_done ();
+  void command_line ();
+  bool _search ();
+  void searchTextCmd ();
+  bool _searchText ();
+  void search ();
+  void search_next ();
+  void search_prev ();
+  void sortByTitle ();
+  void sortByDone ();
+  void sortByDeadline ();
+  void sortByPriority ();
+  void sortByCategory ();
+  void sortByUser ();
+  void sortRevTitle ();
+  void sortRevDone ();
+  void sortRevDeadline ();
+  void sortRevPriority ();
+  void sortRevCategory ();
+  void sortRevUser ();
+  void save ();
+  void help ();
 };
 
 #endif

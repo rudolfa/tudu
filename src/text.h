@@ -26,40 +26,41 @@
 class Text
 {
 public:
-	Text& operator=(const wstring& str);
-	bool operator!=(const wstring& str);
-	void print(Window& win);
-	void edit(Window& win);
-	wstring getStr();
-	void scroll_up(Window& win);
-	void scroll_down(Window& win);
-private:
-	list<wstring> text; /* list of lines */
-	int cursor_col;
-	int cursor_y; /* = INT_MIN when is no editing */
-	list<wstring>::iterator cursor_line;
-	list<wstring>::iterator offset; /* line for start to display */
-	int lines, cols;
+  Text &operator= (const wstring &str);
+  bool operator!= (const wstring &str);
+  void print (Window &win);
+  void edit (Window &win);
+  wstring getStr ();
+  void scroll_up (Window &win);
+  void scroll_down (Window &win);
 
-	/* begin=line for start, length=num of screen lines to fit*/
-	wstring _getStr(list<wstring>::iterator begin, int length = 0);
-	bool _scroll_up();
-	bool _scroll_down();
-	void left();
-	void right();
-	void up();
-	void down();
-	void backspace();
-	void supr();
-	void home();
-	void end();
-	void next_page();
-	void prev_page();
-	void new_line();
-	void tab();
+private:
+  list<wstring> text; /* list of lines */
+  int cursor_col;
+  int cursor_y; /* = INT_MIN when is no editing */
+  list<wstring>::iterator cursor_line;
+  list<wstring>::iterator offset; /* line for start to display */
+  int lines, cols;
+
+  /* begin=line for start, length=num of screen lines to fit*/
+  wstring _getStr (list<wstring>::iterator begin, int length = 0);
+  bool _scroll_up ();
+  bool _scroll_down ();
+  void left ();
+  void right ();
+  void up ();
+  void down ();
+  void backspace ();
+  void supr ();
+  void home ();
+  void end ();
+  void next_page ();
+  void prev_page ();
+  void new_line ();
+  void tab ();
 };
 
-wostream& operator<<(wostream& os, Text& t);
-wistream& operator>>(wistream& is, Text& t);
+wostream &operator<< (wostream &os, Text &t);
+wistream &operator>> (wistream &is, Text &t);
 
 #endif

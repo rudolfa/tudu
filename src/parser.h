@@ -20,47 +20,47 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "includes.h"
 #include "data.h"
+#include "includes.h"
 #include "scheduler.h"
 #include "text.h"
-
 
 class Parser
 {
 public:
-	Parser(const char* path);
-	~Parser();
+  Parser (const char *path);
+  ~Parser ();
 
-	bool parse(ToDo& todo, Sched& sched);
+  bool parse (ToDo &todo, Sched &sched);
+
 private:
-	wifstream file;
-	wstring str;
-	wstring txt;
-	bool collect_text;
-	bool deadline;
-	bool scheduled;
+  wifstream file;
+  wstring str;
+  wstring txt;
+  bool collect_text;
+  bool deadline;
+  bool scheduled;
 
-	void ptag(iToDo& iterator, Sched& sched);
-	void patt(iToDo& iterator);
-	wchar_t amp();
+  void ptag (iToDo &iterator, Sched &sched);
+  void patt (iToDo &iterator);
+  wchar_t amp ();
 };
 
 class Writer
 {
 public:
-	Writer(const char* pathToSave, ToDo& t);
-	~Writer();
+  Writer (const char *pathToSave, ToDo &t);
+  ~Writer ();
 
-	bool save(); /* return if was succesfull */
+  bool save (); /* return if was succesfull */
 private:
-	wofstream file;
-	ToDo& todo;
-	iToDo* i;
-	char path[256];
+  wofstream file;
+  ToDo &todo;
+  iToDo *i;
+  char path[256];
 
-	void _save();
-	void amp(wstring& str);
+  void _save ();
+  void amp (wstring &str);
 };
 
 #endif
