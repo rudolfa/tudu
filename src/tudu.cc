@@ -100,6 +100,7 @@ main (int argc, char **argv, char *env[])
 {
   int i;
   char file_rc[128], file_xml[128], file_lock[133];
+  bool use_custom_filename = false;
 
   // Disable Ctrl-C: Otherwise all changes are lost if one slips.
   struct sigaction ignore_ctrl_c;
@@ -123,6 +124,7 @@ main (int argc, char **argv, char *env[])
             {
               strncpy (file_xml, argv[i], 127);
               file_xml[127] = '\0';
+              use_custom_filename = true;
             }
           else
             {
@@ -183,15 +185,18 @@ main (int argc, char **argv, char *env[])
   strncat (file_rc, "/.tudurc", 9);
   config.load (file_rc);
 
-  if (config.getTuduFile () == L"")
+  if (!use_custom_filename)
     {
-      strncpy (file_xml, env[i] + 5, 117);
-      file_xml[117] = '\0';
-      strncat (file_xml, "/.tudu.xml", 11);
-    }
-  else
-    {
-      wcstombs (file_xml, config.getTuduFile ().c_str (), 128);
+      if (config.getTuduFile () == L"")
+        {
+          strncpy (file_xml, env[i] + 5, 117);
+          file_xml[117] = '\0';
+          strncat (file_xml, "/.tudu.xml", 11);
+        }
+      else
+        {
+          wcstombs (file_xml, config.getTuduFile ().c_str (), 128);
+        }
     }
 
   if (configErr)
